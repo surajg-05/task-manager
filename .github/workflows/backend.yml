@@ -1,4 +1,4 @@
-name: Build and Push Backend
+name: Deploy Backend
 
 on:
   push:
@@ -6,6 +6,7 @@ on:
       - main
     paths:
       - "backend/**"
+      - "docker-compose.yml"
       - ".github/workflows/backend.yml"
 
 permissions:
@@ -33,3 +34,19 @@ jobs:
           context: ./backend
           push: true
           tags: ghcr.io/${{ github.repository_owner }}/task-manager-backend:latest
+
+  deploy:
+    needs: build-and-push
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Deploy to EC2
+        uses: appleboy/ssh-action@v1.2.2
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USERNAME }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+          script: |
+            cd ~/task-manager
+            docker compose pull backend
+            docker compose up -d backend
