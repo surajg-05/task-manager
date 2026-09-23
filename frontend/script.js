@@ -1,4 +1,4 @@
-const API_URL = "http://localhost:5000/api";
+const API_URL = "http://65.1.92.66:5000/api";
 
 
 async function loadTasks() {
